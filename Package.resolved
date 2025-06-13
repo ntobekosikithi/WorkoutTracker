@@ -1,0 +1,15 @@
+{
+  "originHash" : "568657532174cb82afcdb43ad62d1c9dcab6971837f347ebe3fce555436b98cc",
+  "pins" : [
+    {
+      "identity" : "utilities",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ntobekosikithi/Utilities.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "644fcbab16e74f40c3d26a8f9b8676c904bd4c3e"
+      }
+    }
+  ],
+  "version" : 3
+}
