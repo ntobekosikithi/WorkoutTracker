@@ -16,8 +16,10 @@ public final class WorkoutTracker: ObservableObject {
     private var timer: Timer?
     private var pausedDuration: TimeInterval = 0
     private var pauseStartTime: Date?
+    private let storage: DataStorage
     
-    public init() {
+    public init(storage: DataStorage = DataStorageImplementation()) {
+        self.storage = storage
         loadWorkoutHistory()
     }
     
@@ -109,20 +111,14 @@ public final class WorkoutTracker: ObservableObject {
     private func saveWorkoutHistory() {
         do {
             let data = try JSONEncoder().encode(workoutHistory)
-            UserDefaults.standard.set(data, forKey: "workout_history")
+            try? storage.saveObject(data, forKey: "workout_history")
         } catch {
             print("Failed to save workout history: \(error)")
         }
     }
     
     private func loadWorkoutHistory() {
-        guard let data = UserDefaults.standard.data(forKey: "workout_history") else { return }
-        
-        do {
-            workoutHistory = try JSONDecoder().decode([Workout].self, from: data)
-        } catch {
-            print("Failed to load workout history: \(error)")
-        }
+        workoutHistory = (try? storage.retrieveObject([Workout].self, forKey: "workout_history")) ?? []
     }
 }
 
