@@ -129,7 +129,7 @@ public final class WorkoutTracker: ObservableObject {
             // Update workout count goals
             let workoutCountGoals = goalManager.currentGoals.filter { $0.type == .workoutCount && $0.isActive }
             for goal in workoutCountGoals {
-                try await goalManager.updateProgress(for: goal.id, value: 1) // +1 workout
+                try await goalManager.updateProgress(for: goal.id, value: 4) // +1 workout
             }
             
             // Update duration goals (convert seconds to minutes)
