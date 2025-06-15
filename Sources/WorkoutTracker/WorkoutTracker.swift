@@ -100,9 +100,11 @@ public final class WorkoutTracker: ObservableObject {
         
         stopTimer()
         
-        try await workoutService.updateSession(session)
-        
-        await updateGoalProgress(for: session)
+        Task {
+            try await workoutService.updateSession(session)
+            await goalManager.loadGoals()
+            await updateGoalProgress(for: session)
+        }
         
         currentSession = nil
         isTracking = false
@@ -124,7 +126,6 @@ public final class WorkoutTracker: ObservableObject {
     
     private func updateGoalProgress(for session: WorkoutSession) async {
         do {
-            let allGoals = goalManager.currentGoals
             // Update workout count goals
             let workoutCountGoals = goalManager.currentGoals.filter { $0.type == .workoutCount && $0.isActive }
             for goal in workoutCountGoals {
