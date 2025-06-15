@@ -42,7 +42,6 @@ public final class WorkoutTracker: ObservableObject {
             status: .inProgress
         )
         
-        await updateGoalProgress(for: session)
         currentSession = session
         isTracking = true
         elapsedTime = 0
@@ -102,6 +101,7 @@ public final class WorkoutTracker: ObservableObject {
         stopTimer()
         
         try await workoutService.updateSession(session)
+        await updateGoalProgress(for: session)
         
         currentSession = nil
         isTracking = false
