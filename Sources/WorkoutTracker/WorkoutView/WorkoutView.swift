@@ -14,6 +14,7 @@ public struct WorkoutView: View {
     @State private var selectedWorkoutType: WorkoutType = .running
     @State private var showingAlert = false
     @State private var alertMessage = ""
+    public init(){}
     
     public var body: some View {
         NavigationView {
