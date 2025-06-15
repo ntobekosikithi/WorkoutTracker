@@ -1,6 +1,15 @@
 {
-  "originHash" : "568657532174cb82afcdb43ad62d1c9dcab6971837f347ebe3fce555436b98cc",
+  "originHash" : "378f1d5c3538f19697eedbdc64ed90316aac05ee8e21a2c545a4cb85595f8088",
   "pins" : [
+    {
+      "identity" : "goalmanager",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ntobekosikithi/GoalManager.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "a39241a66d51dece845109716ca51655252c8b81"
+      }
+    },
     {
       "identity" : "utilities",
       "kind" : "remoteSourceControl",

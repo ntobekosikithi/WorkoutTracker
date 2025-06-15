@@ -12,14 +12,15 @@ let package = Package(
             targets: ["WorkoutTracker"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/ntobekosikithi/Utilities.git", branch: "main")
+        .package(url: "https://github.com/ntobekosikithi/Utilities.git", branch: "main"),
+        .package(url: "https://github.com/ntobekosikithi/GoalManager.git", branch: "main")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "WorkoutTracker",
-            dependencies: ["Utilities"]),
+            dependencies: ["Utilities", "GoalManager"]),
         .testTarget(
             name: "WorkoutTrackerTests",
             dependencies: ["WorkoutTracker"]
