@@ -73,7 +73,7 @@ final actor WorkoutServiceImplementation: WorkoutService {
     func isSave(_ session: WorkoutSession) async -> Bool {
         do {
             let sessions = try await getAllSessions()
-            return sessions.contains(session)
+            return sessions.contains { $0.id == session.id}
         } catch {
             return false
         }
