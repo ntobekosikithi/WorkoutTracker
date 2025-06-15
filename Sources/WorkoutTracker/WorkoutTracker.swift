@@ -4,6 +4,7 @@
 import Foundation
 import Combine
 import Utilities
+import GoalManager
 
 @available(iOS 14.0, *)
 @MainActor
@@ -13,14 +14,17 @@ public final class WorkoutTracker: ObservableObject {
     @Published public private(set) var elapsedTime: TimeInterval = 0
     
     private let workoutService: WorkoutService
+    private let goalManager: GoalManager
     private let logger: Logger
     private var timer: Timer?
     
     public init(
         workoutService: WorkoutService? = nil,
+        goalManager: GoalManager = GoalManager(),
         logger: Logger = Logger.shared
     ) {
         self.workoutService = WorkoutServiceImplementation()
+        self.goalManager = goalManager
         self.logger = logger
     }
     
@@ -38,6 +42,7 @@ public final class WorkoutTracker: ObservableObject {
             status: .inProgress
         )
         
+        await updateGoalProgress(for: session)
         currentSession = session
         isTracking = true
         elapsedTime = 0
@@ -114,6 +119,43 @@ public final class WorkoutTracker: ObservableObject {
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+    
+    private func updateGoalProgress(for session: WorkoutSession) async {
+        do {
+            // Update workout count goals
+            let workoutCountGoals = goalManager.currentGoals.filter { $0.type == .workoutCount && $0.isActive }
+            for goal in workoutCountGoals {
+                try await goalManager.updateProgress(for: goal.id, value: 1) // +1 workout
+            }
+            
+            // Update duration goals (convert seconds to minutes)
+            let durationGoals = goalManager.currentGoals.filter { $0.type == .totalDuration && $0.isActive }
+            for goal in durationGoals {
+                let durationInMinutes = session.duration / 60
+                try await goalManager.updateProgress(for: goal.id, value: durationInMinutes)
+            }
+            
+            // Update calorie goals if calories were tracked
+            if let calories = session.calories {
+                let calorieGoals = goalManager.currentGoals.filter { $0.type == .calories && $0.isActive }
+                for goal in calorieGoals {
+                    try await goalManager.updateProgress(for: goal.id, value: Double(calories))
+                }
+            }
+            
+            // Update distance goals if distance was tracked
+            if let distance = session.distance {
+                let distanceGoals = goalManager.currentGoals.filter { $0.type == .distance && $0.isActive }
+                for goal in distanceGoals {
+                    try await goalManager.updateProgress(for: goal.id, value: distance)
+                }
+            }
+            
+            logger.info("Successfully updated goal progress for workout")
+        } catch {
+            logger.error("Failed to update goal progress: \(error)")
+        }
     }
 }
 
