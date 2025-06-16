@@ -33,8 +33,6 @@ public final class WorkoutTracker: ObservableObject {
             throw WorkoutError.sessionAlreadyActive
         }
         
-        logger.info("Starting workout: \(type.rawValue)")
-        
         let session = WorkoutSession(
             id: UUID(),
             type: type,
@@ -57,8 +55,6 @@ public final class WorkoutTracker: ObservableObject {
             throw WorkoutError.noActiveSession
         }
         
-        logger.info("Pausing workout")
-        
         session.status = .paused
         session.pausedAt = Date()
         currentSession = session
@@ -74,9 +70,7 @@ public final class WorkoutTracker: ObservableObject {
               session.status == .paused else {
             throw WorkoutError.cannotResumeSession
         }
-        
-        logger.info("Resuming workout")
-        
+
         session.status = .inProgress
         session.resumedAt = Date()
         currentSession = session
@@ -91,24 +85,38 @@ public final class WorkoutTracker: ObservableObject {
         guard var session = currentSession else {
             throw WorkoutError.noActiveSession
         }
-        
-        logger.info("Stopping workout")
-        
+
         session.status = .completed
         session.endTime = Date()
         session.duration = elapsedTime
-        
-        stopTimer()
-        
-        Task {
-            try await workoutService.updateSession(session)
-            await goalManager.loadGoals()
-            await updateGoalProgress(for: session)
+        do {
+            try await UpdateSessionWithCurrentProgress(workoutSession: session)
+        } catch  {
+            logger.error("Failed to update workout sessions: \(error)")
         }
-        
         currentSession = nil
         isTracking = false
         elapsedTime = 0
+    }
+    
+    private func UpdateSessionWithCurrentProgress(workoutSession: WorkoutSession) async throws {
+        var session = workoutSession
+        if session.calories == nil {  session.calories = session.estimatedCalories }
+
+        if session.distance == nil { session.distance = session.estimatedDistance }
+
+        if session.steps == nil { session.steps = session.estimatedSteps }
+        
+        stopTimer()
+        
+        try await workoutService.updateSession(session)
+
+        do {
+            try await goalManager.processWorkoutCompletion(session)
+            logger.info("Successfully updated goal progress for completed workout")
+        } catch {
+            logger.error("Failed to update goal progress: \(error)")
+        }
     }
     
     private func startTimer() {
