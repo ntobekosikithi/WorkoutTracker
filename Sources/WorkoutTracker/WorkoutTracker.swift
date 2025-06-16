@@ -31,7 +31,7 @@ public final class WorkoutTracker: ObservableObject {
     public init(
         workoutService: WorkoutService? = nil,
         goalManager: GoalManager = GoalManager(),
-        logger: Logger = Logger.shared
+        logger: Logger = LoggerImplementation()
     ) {
         self.workoutService = workoutService ?? WorkoutServiceImplementation()
         self.goalManager = goalManager

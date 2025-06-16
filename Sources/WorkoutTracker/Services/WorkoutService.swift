@@ -31,7 +31,7 @@ final actor WorkoutServiceImplementation: WorkoutService {
 
     init(
         dataStorage: DataStorage = DataStorageImplementation(),
-        logger: Logger = Logger.shared
+        logger: Logger = LoggerImplementation()
     ) {
         self.dataStorage = dataStorage
         self.logger = logger
