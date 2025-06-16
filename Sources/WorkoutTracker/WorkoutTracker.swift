@@ -90,6 +90,7 @@ public final class WorkoutTracker: ObservableObject {
         session.endTime = Date()
         session.duration = elapsedTime
         do {
+            
             try await UpdateSessionWithCurrentProgress(workoutSession: session)
         } catch  {
             logger.error("Failed to update workout sessions: \(error)")
@@ -112,6 +113,7 @@ public final class WorkoutTracker: ObservableObject {
         try await workoutService.updateSession(session)
 
         do {
+            await goalManager.loadGoals()
             try await goalManager.processWorkoutCompletion(session)
             logger.info("Successfully updated goal progress for completed workout")
         } catch {
