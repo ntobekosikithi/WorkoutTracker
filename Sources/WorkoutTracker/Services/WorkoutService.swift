@@ -8,7 +8,8 @@
 
 import Foundation
 import Utilities
-@available(iOS 13.0.0, *)
+
+@available(iOS 13.0, *)
 public protocol WorkoutService: Sendable {
     func saveSession(_ session: WorkoutSession) async throws
     func updateSession(_ session: WorkoutSession) async throws
@@ -16,11 +17,12 @@ public protocol WorkoutService: Sendable {
     func getSession(by id: UUID) async throws -> WorkoutSession?
 }
 
-@available(iOS 13.0.0, *)
+@available(iOS 13.0, *)
 final actor WorkoutServiceImplementation: WorkoutService {
     private let dataStorage: DataStorage
     private let logger: Logger
     private let workoutSessionKey = "workout_session_key"
+
     init(
         dataStorage: DataStorage = DataStorageImplementation(),
         logger: Logger = Logger.shared
@@ -28,52 +30,45 @@ final actor WorkoutServiceImplementation: WorkoutService {
         self.dataStorage = dataStorage
         self.logger = logger
     }
-    
+
     func saveSession(_ session: WorkoutSession) async throws {
         let key = "workout_session_\(session.id.uuidString)"
         try dataStorage.save(session, forKey: key)
         logger.info("Saved workout session: \(session.id)")
-        await saveSessions(session)
+        await saveSessionToListIfNeeded(session)
     }
-    
-    func saveSessions(_ session: WorkoutSession) async {
-        if await !isSave(session) {
-            do {
-                var sessions = try await getAllSessions()
-                sessions.append(session)
-                try dataStorage.save(sessions, forKey: workoutSessionKey)
-                logger.info("Saved workout session: \(session.id)")
-            } catch {
-                logger.info("Failed to save workout session: \(session.id)")
-            }
+
+    private func saveSessionToListIfNeeded(_ session: WorkoutSession) async {
+        guard await !sessionExists(session) else { return }
+
+        do {
+            var sessions = try await getAllSessions()
+            sessions.append(session)
+            try dataStorage.save(sessions, forKey: workoutSessionKey)
+            logger.info("Appended session to session list: \(session.id)")
+        } catch {
+            logger.info("Failed to append session to session list: \(session.id)")
         }
     }
-    
+
     func updateSession(_ session: WorkoutSession) async throws {
         try await saveSession(session)
         logger.info("Updated workout session: \(session.id)")
     }
-    
+
     func getAllSessions() async throws -> [WorkoutSession] {
-        guard let data = try dataStorage.retrieve([WorkoutSession].self, forKey: workoutSessionKey) else {
-            return []
-        }
-        return data
+        return try dataStorage.retrieve([WorkoutSession].self, forKey: workoutSessionKey) ?? []
     }
-    
+
     func getSession(by id: UUID) async throws -> WorkoutSession? {
         let key = "workout_session_\(id.uuidString)"
-        guard let data = try dataStorage.retrieve(WorkoutSession.self, forKey: key) else {
-            return nil
-        }
-        
-        return data
+        return try dataStorage.retrieve(WorkoutSession.self, forKey: key)
     }
-    
-    func isSave(_ session: WorkoutSession) async -> Bool {
+
+    private func sessionExists(_ session: WorkoutSession) async -> Bool {
         do {
             let sessions = try await getAllSessions()
-            return sessions.contains { $0.id == session.id}
+            return sessions.contains { $0.id == session.id }
         } catch {
             return false
         }

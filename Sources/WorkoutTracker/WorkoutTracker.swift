@@ -133,43 +133,6 @@ public final class WorkoutTracker: ObservableObject {
         timer?.invalidate()
         timer = nil
     }
-    
-    private func updateGoalProgress(for session: WorkoutSession) async {
-        do {
-            // Update workout count goals
-            let workoutCountGoals = goalManager.currentGoals.filter { $0.type == .workoutCount && $0.isActive }
-            for goal in workoutCountGoals {
-                try await goalManager.updateProgress(for: goal.id, value: 4) // +1 workout
-            }
-            
-            // Update duration goals (convert seconds to minutes)
-            let durationGoals = goalManager.currentGoals.filter { $0.type == .totalDuration && $0.isActive }
-            for goal in durationGoals {
-                let durationInMinutes = session.duration / 60
-                try await goalManager.updateProgress(for: goal.id, value: durationInMinutes)
-            }
-            
-            // Update calorie goals if calories were tracked
-            if let calories = session.calories {
-                let calorieGoals = goalManager.currentGoals.filter { $0.type == .calories && $0.isActive }
-                for goal in calorieGoals {
-                    try await goalManager.updateProgress(for: goal.id, value: Double(calories))
-                }
-            }
-            
-            // Update distance goals if distance was tracked
-            if let distance = session.distance {
-                let distanceGoals = goalManager.currentGoals.filter { $0.type == .distance && $0.isActive }
-                for goal in distanceGoals {
-                    try await goalManager.updateProgress(for: goal.id, value: distance)
-                }
-            }
-            
-            logger.info("Successfully updated goal progress for workout")
-        } catch {
-            logger.error("Failed to update goal progress: \(error)")
-        }
-    }
 }
 
 // MARK: - Public Interface
@@ -179,11 +142,9 @@ public extension WorkoutTracker {
         let hours = Int(elapsedTime) / 3600
         let minutes = Int(elapsedTime) % 3600 / 60
         let seconds = Int(elapsedTime) % 60
-        
-        if hours > 0 {
-            return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
-        } else {
-            return String(format: "%02d:%02d", minutes, seconds)
-        }
+
+        return hours > 0
+            ? String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+            : String(format: "%02d:%02d", minutes, seconds)
     }
 }
