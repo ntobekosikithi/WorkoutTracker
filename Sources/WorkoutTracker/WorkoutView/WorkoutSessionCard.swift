@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Utilities
 
 @available(iOS 14.0, *)
 public struct WorkoutSessionCard: View {

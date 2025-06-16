@@ -7,10 +7,13 @@
 
 import Foundation
 import SwiftUI
+import Utilities
+import GoalManager
 
 @available(iOS 15.0, *)
 public struct WorkoutView: View {
     @StateObject private var workoutTracker = WorkoutTracker()
+    @StateObject private var goalManager = GoalManager()
     @State private var selectedWorkoutType: WorkoutType = .running
     @State private var showingAlert = false
     @State private var alertMessage = ""
@@ -19,7 +22,6 @@ public struct WorkoutView: View {
     public var body: some View {
         NavigationView {
             VStack(spacing: 24) {
-                // Current Session Card
                 if let session = workoutTracker.currentSession {
                     WorkoutSessionCard(
                         session: session,
@@ -27,10 +29,9 @@ public struct WorkoutView: View {
                         isTracking: workoutTracker.isTracking
                     )
                 } else {
-                    WorkoutTypeSelector(selectedType: $selectedWorkoutType)
+                    WorkoutTypeSelector(selectedType: $selectedWorkoutType, goalManager: goalManager)
                 }
                 
-                // Control Buttons
                 WorkoutControls(
                     workoutTracker: workoutTracker,
                     selectedType: selectedWorkoutType,

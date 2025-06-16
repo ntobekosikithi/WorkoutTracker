@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Utilities
 
 @available(iOS 15.0, *)
 public struct WorkoutControls: View {
