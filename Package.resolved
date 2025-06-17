@@ -7,7 +7,7 @@
       "location" : "https://github.com/ntobekosikithi/GoalManager.git",
       "state" : {
         "branch" : "main",
-        "revision" : "6cd61657fcff87e4f69e76e04760bedc41ec27bf"
+        "revision" : "6290bc617814508367486ab5bfebf452c94bbd6e"
       }
     },
     {
@@ -16,7 +16,7 @@
       "location" : "https://github.com/ntobekosikithi/Utilities.git",
       "state" : {
         "branch" : "main",
-        "revision" : "2be545f5c3fe47a394d99caa20c2513b32dc62da"
+        "revision" : "55a7e5f3f63374b3a68981312babdf23809472ad"
       }
     }
   ],

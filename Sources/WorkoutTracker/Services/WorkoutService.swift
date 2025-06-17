@@ -18,7 +18,7 @@ public protocol WorkoutService: Sendable {
 }
 
 @available(iOS 13.0, *)
-final actor WorkoutServiceImplementation: WorkoutService {
+internal final actor WorkoutServiceImplementation: WorkoutService {
 
     // MARK: - Properties
 
